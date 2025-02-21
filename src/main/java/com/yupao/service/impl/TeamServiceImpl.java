@@ -27,11 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
 * @author 16013
@@ -42,6 +40,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
 
     @Resource
     private UserTeamService userTeamService;
+
+    @Resource
+    private TeamMapper teamMapper;
 
     @Resource
     private UserService userService;
@@ -365,6 +366,134 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         // 删除队伍
         return this.removeById(teamId);
+    }
+
+    @Override
+    public List<TeamUserVO> listMyCreateTeams(TeamQuery teamQuery, Long userId) {
+        if (teamQuery == null || userId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 设置查询条件，查询当前用户创建的团队
+        teamQuery.setUserId(userId);
+
+        // 构建查询条件
+        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", teamQuery.getUserId()); // 根据 `userId` 字段进行查询
+
+        // 查询所有队伍
+        List<Team> teamList = teamMapper.selectList(queryWrapper);
+
+        // 转换为 TeamUserVO 并加入必要字段
+        List<TeamUserVO> teamUserVOList = teamList.stream()
+                .map(team -> {
+                    TeamUserVO teamUserVO = new TeamUserVO();
+                    BeanUtils.copyProperties(team, teamUserVO);
+                    return teamUserVO;
+                }).collect(Collectors.toList());
+
+        // 获取当前用户已加入的队伍
+        List<Long> teamIdList = teamUserVOList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+
+        QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+        try {
+            userTeamQueryWrapper.eq("userId", userId);
+            userTeamQueryWrapper.in("teamId", teamIdList);
+            List<UserTeam> userTeamList = userTeamService.list(userTeamQueryWrapper);
+            // 已加入的队伍 id 集合
+            Set<Long> hasJoinTeamIdSet = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
+            teamUserVOList.forEach(team -> {
+                boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
+                team.setHasJoin(hasJoin);
+            });
+        } catch (Exception e) {
+            // 处理异常情况，日志记录等
+        }
+
+        // 查询已加入队伍的人数
+        QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();
+        userTeamJoinQueryWrapper.in("teamId", teamIdList);
+        List<UserTeam> userTeamList = userTeamService.list(userTeamJoinQueryWrapper);
+
+        // 队伍 id => 加入这个队伍的用户列表
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+
+        teamUserVOList.forEach(team ->
+                team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size())
+        );
+
+        // 返回所有队伍信息
+        return teamUserVOList;
+    }
+
+    @Override
+    public List<TeamUserVO> listMyJoinTeams(TeamQuery teamQuery, Long userId) {
+        if (teamQuery == null || userId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 先查询用户已加入的队伍
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", userId);
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+
+        // 提取不重复的队伍 ID
+        Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
+        ArrayList<Long> idList = new ArrayList<>(listMap.keySet());
+
+        // 设置查询条件，只查询当前用户已加入的队伍
+        teamQuery.setIdList(idList);
+
+        // 构建查询条件
+        QueryWrapper<Team> teamQueryWrapper = new QueryWrapper<>();
+        if (teamQuery.getIdList() != null && !teamQuery.getIdList().isEmpty()) {
+            teamQueryWrapper.in("id", teamQuery.getIdList());  // 根据队伍ID查询
+        }
+
+        // 如果有搜索条件，加入搜索条件
+        if (teamQuery.getSearchText() != null && !teamQuery.getSearchText().isEmpty()) {
+            teamQueryWrapper.like("name", teamQuery.getSearchText())  // 根据队伍名称进行模糊搜索
+                    .or().like("description", teamQuery.getSearchText());  // 或者根据队伍描述进行模糊搜索
+        }
+
+        // 分页处理
+        int offset = (teamQuery.getPageNum() - 1) * teamQuery.getPageSize();
+        teamQueryWrapper.last("LIMIT " + offset + ", " + teamQuery.getPageSize());
+
+        // 查询队伍列表
+        List<Team> teamList = teamMapper.selectList(teamQueryWrapper);
+
+        // 转换为 TeamUserVO 并加入必要字段
+        List<TeamUserVO> teamUserVOList = teamList.stream()
+                .map(team -> {
+                    TeamUserVO teamUserVO = new TeamUserVO();
+                    BeanUtils.copyProperties(team, teamUserVO);
+                    return teamUserVO;
+                }).collect(Collectors.toList());
+
+        // 获取当前用户已加入的队伍
+        Set<Long> hasJoinTeamIdSet = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
+        teamUserVOList.forEach(team -> {
+            boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
+            team.setHasJoin(hasJoin);  // 是否已经加入
+        });
+
+        // 查询已加入队伍的人数
+        QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();
+        userTeamJoinQueryWrapper.in("teamId", idList);
+        List<UserTeam> userTeamListForCount = userTeamService.list(userTeamJoinQueryWrapper);
+
+        // 队伍 ID => 加入该队伍的用户列表
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamListForCount.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+
+        teamUserVOList.forEach(team ->
+                team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size())  // 设置已加入人数
+        );
+
+        // 返回所有队伍信息
+        return teamUserVOList;
     }
 
     /**

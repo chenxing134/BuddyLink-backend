@@ -64,4 +64,8 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    List<TeamUserVO> listMyCreateTeams(TeamQuery teamQuery, Long userId);
+
+    List<TeamUserVO> listMyJoinTeams(TeamQuery teamQuery, Long userId);
 }

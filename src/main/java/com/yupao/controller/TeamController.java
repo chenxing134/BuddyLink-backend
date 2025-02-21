@@ -179,9 +179,9 @@ public class TeamController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        teamQuery.setUserId(loginUser.getId());
-        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
-        return ResultUtils.success(teamList);
+        List<TeamUserVO> teamUserVOList = teamService.listMyCreateTeams(teamQuery, loginUser.getId());
+
+        return ResultUtils.success(teamUserVOList);
     }
 
 
@@ -197,14 +197,8 @@ public class TeamController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userId", loginUser.getId());
-        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
-        Map<Long, List<UserTeam>> listMap = userTeamList.stream()
-                .collect(Collectors.groupingBy(UserTeam::getTeamId));
-        List<Long> idList = new ArrayList<>(listMap.keySet());
-        teamQuery.setIdList(idList);
-        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
-        return ResultUtils.success(teamList);
+        List<TeamUserVO> teamUserVOList = teamService.listMyJoinTeams(teamQuery, loginUser.getId());
+
+        return ResultUtils.success(teamUserVOList);
     }
 }

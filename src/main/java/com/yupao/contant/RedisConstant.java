@@ -8,7 +8,6 @@ public interface RedisConstant {
     String USER_RECOMMEND_KEY = "BuddyLink:user:recommend";
 
     String REDIS_LIMITER_REGISTER = "BuddyLink:limiter:register:";
-    String USER_SIGNIN_KEY = "BuddyLink:user:signin:";
     String USER_BLOOM_FILTER_KEY = "BuddyLink:user:bloomfilter";
     /**
      * 用户推荐缓存
