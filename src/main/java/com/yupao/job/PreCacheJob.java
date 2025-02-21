@@ -38,16 +38,16 @@ public class PreCacheJob {
     private RedissonClient redissonClient;
 
     // 每天执行，预热推荐用户
-    @Scheduled(cron = "0 3 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void doCacheRecommendUser() {
-        RLock lock = redissonClient.getLock("chenxing:user:recommend:lock");
+        RLock lock = redissonClient.getLock("BuddyLink:user:recommend:lock");
         try {
             if (lock.tryLock(0,30000L, TimeUnit.MILLISECONDS)) {
                 for (Long userId : mainUserList){
                     //查数据库
                     QueryWrapper<User> queryWrapper = new QueryWrapper<>();
                     Page<User> userPage = userService.page(new Page<>(1,20),queryWrapper);
-                    String redisKey = String.format("chenxing:user:recommend:%s",userId);
+                    String redisKey = String.format("BuddyLink:user:recommend:%s",userId);
                     ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
                     //写缓存,30s过期
                     try {

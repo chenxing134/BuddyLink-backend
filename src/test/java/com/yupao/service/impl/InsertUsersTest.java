@@ -46,7 +46,7 @@ public class InsertUsersTest {
         List<User> userList = new ArrayList<>();
 
         for (int i = 0; i < INSERT_NUM; i++) {
-            User user = createUser("原_创 【鱼_皮】https://t.zsxq.com/0emozsIJh", "fakeyupi");
+            User user = createUser("辰星", "Chenxing");
             userList.add(user);
         }
 
