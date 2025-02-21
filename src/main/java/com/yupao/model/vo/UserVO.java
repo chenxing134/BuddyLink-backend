@@ -37,6 +37,11 @@ public class UserVO implements Serializable {
     private Integer gender;
 
     /**
+     * 用户简介
+     */
+    private String profile;
+
+    /**
      * 电话
      */
     private String phone;
@@ -75,6 +80,10 @@ public class UserVO implements Serializable {
      * 星球编号
      */
     private String planetCode;
+    /**
+     * 用户距离
+     */
+    private Double distance;
 
     private static final long serialVersionUID = 1L;
 }

@@ -3,6 +3,7 @@ package com.yupao.model.request;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户注册请求体
@@ -32,4 +33,18 @@ public class UserRegisterRequest implements Serializable {
      * 星球编号
      */
     private String planetCode;
+
+    private Integer gender;
+
+    private String avatarUrl;
+
+    private String username;
+
+    private String phone;
+
+    private List<String> tagNameList;
+
+    private Double longitude;
+
+    private Double Dimension;
 }

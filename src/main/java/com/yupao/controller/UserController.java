@@ -7,11 +7,14 @@ import com.yupao.common.ErrorCode;
 import com.yupao.common.ResultUtils;
 import com.yupao.exception.BusinessException;
 import com.yupao.model.domain.User;
+import com.yupao.model.request.UserEditRequest;
 import com.yupao.model.request.UserLoginRequest;
 import com.yupao.model.request.UserRegisterRequest;
+import com.yupao.model.vo.UserVO;
 import com.yupao.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
+import static com.yupao.contant.RedisConstant.USER_RECOMMEND_KEY;
 import static com.yupao.contant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -49,19 +53,11 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
-        // 校验
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String userAccount = userRegisterRequest.getUserAccount();
-        String userPassword = userRegisterRequest.getUserPassword();
-        String checkPassword = userRegisterRequest.getCheckPassword();
-        String planetCode = userRegisterRequest.getPlanetCode();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
-            return null;
-        }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
+        long result = userService.userRegister(request, userRegisterRequest);
         return ResultUtils.success(result);
     }
 
@@ -115,7 +111,6 @@ public class UserController {
             throw new BusinessException(ErrorCode.NOT_LOGIN);
         }
         long userId = currentUser.getId();
-        // TODO 校验用户是否合法
         User user = userService.getById(userId);
         User safetyUser = userService.getSafetyUser(user);
         return ResultUtils.success(safetyUser);
@@ -145,34 +140,21 @@ public class UserController {
     }
 
     @GetMapping("/recommend")
-    public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
-        String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        // 如果有缓存，直接读缓存
-        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
-        if (userPage != null) {
-            return ResultUtils.success(userPage);
+    public BaseResponse<List<UserVO>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
+        if (pageSize < 0 || pageNum < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 无缓存，查数据库
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
-        // 写缓存
-        try {
-            valueOperations.set(redisKey, userPage, 30000, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            log.error("redis set key error", e);
-        }
-        return ResultUtils.success(userPage);
+        List<UserVO> userVOS = userService.recommendUsers(pageSize, pageNum, request);
+        return ResultUtils.success(userVOS);
     }
     @PostMapping("/update")
-    public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request) {
+    public BaseResponse<Integer> updateUser(@RequestBody UserEditRequest userEditRequest, HttpServletRequest request) {
         // 校验参数是否为空
-        if (user == null) {
+        if (userEditRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        int result = userService.updateUser(user,loginUser);
+        int result = userService.updateUser(userEditRequest,loginUser);
         return ResultUtils.success(result);
     }
 
@@ -195,11 +177,37 @@ public class UserController {
      * @return
      */
     @GetMapping("/match")
-    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
-        if(num <= 0 || num > 20) {
+    public BaseResponse<List<UserVO>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, loginUser));
+    }
+
+    /**
+     * 搜索附近用户
+     */
+    @GetMapping("/searchNearby")
+    public BaseResponse<List<UserVO>> searchNearby(int radius, HttpServletRequest request) {
+        if (radius <= 0 || radius > 10000) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.matchUsers(num,user));
+        User loginUser = userService.getById(user.getId());
+        List<UserVO> userVOList = userService.searchNearby(radius, loginUser);
+        return ResultUtils.success(userVOList);
+    }
+
+    @GetMapping("/get/id")
+    public BaseResponse<UserVO> getUserById(@RequestParam Long id, HttpServletRequest request) {
+        if (id == null || id < 1) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getById(id);
+        user = userService.getSafetyUser(user);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return ResultUtils.success(userVO);
     }
 }

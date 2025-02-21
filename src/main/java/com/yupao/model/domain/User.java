@@ -93,6 +93,15 @@ public class User implements Serializable {
      * 星球编号
      */
     private String planetCode;
+    /**
+     * 经度
+     */
+    private Double longitude;
+
+    /**
+     * 维度
+     */
+    private Double dimension;
 
 
     @TableField(exist = false)

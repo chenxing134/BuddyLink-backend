@@ -2,6 +2,8 @@ package com.yupao.service;
 
 import com.yupao.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yupao.model.request.UserEditRequest;
+import com.yupao.model.request.UserRegisterRequest;
 import com.yupao.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,13 +18,9 @@ public interface UserService extends IService<User> {
     /**
      * 用户注册
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
-     * @param planetCode    星球编号
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode);
+    long userRegister(HttpServletRequest request, UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
@@ -61,11 +59,12 @@ public interface UserService extends IService<User> {
     List<User> searchUserByTagsBySQL(List<String> tagNameList);
 
     /**
-     * 更新用户信息
-     * @param user
+     *
+     * @param userEditRequest
+     * @param loginUser
      * @return
      */
-    int updateUser(User user, User loginUser);
+    int updateUser(UserEditRequest userEditRequest, User loginUser);
 
     /**
      *获取当前登录用户信息
@@ -89,10 +88,27 @@ public interface UserService extends IService<User> {
     boolean isAdmin(User loginUser);
 
     /**
+     *
+     * @param pageSize
+     * @param pageNum
+     * @param request
+     * @return
+     */
+    List<UserVO> recommendUsers(long pageSize, long pageNum, HttpServletRequest request);
+
+    /**
      * 匹配用户
      * @param num
      * @param loginUser
      * @return
      */
-    List<User> matchUsers(long num, User loginUser );
+    List<UserVO> matchUsers(long num, User loginUser );
+
+    /**
+     *
+     * @param radius
+     * @param loginUser
+     * @return
+     */
+    List<UserVO> searchNearby(int radius, User loginUser);
 }
