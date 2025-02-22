@@ -5,6 +5,9 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   application:
     name: yupao-backend
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+    time-zone: GMT+8
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
