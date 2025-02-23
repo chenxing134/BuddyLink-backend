@@ -577,6 +577,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         Distance geoRadius = new Distance(radius, RedisGeoCommands.DistanceUnit.KILOMETERS);
         Circle circle = new Circle(new Point(longitude, dimension), geoRadius);
+        // 在Redis中根据地理区域查找附近的用户
         GeoResults<RedisGeoCommands.GeoLocation<String>> results = stringRedisTemplate.opsForGeo()
                 .radius(geoKey, circle);
         List<Long> userIdList = new ArrayList<>();
@@ -586,6 +587,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 userIdList.add(Long.parseLong(id));
             }
         }
+        //计算计算每个用户与登录用户的距离
         List<UserVO> userVOList = userIdList.stream().map(
                 id -> {
                     UserVO userVO = new UserVO();
