@@ -1,15 +1,42 @@
 # 线上配置文件
-
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  application:
+    name: BuddyLink
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+    time-zone: GMT+8
   # DataSource Config
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: 'jdbc:mysql://sh-cynosdbmysql-grp-98pxrcoq.sql.tencentcdb.com:29164/user_center?useSSL=false'
-    username: self
-    password: liyupi66!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.59.129:3306/yupao?characterEncoding=UTF-8
+    username: chenxing
+    password: PYfStbYGNSWCaaft
+  redis:
+    host: 127.0.0.2
+    port: 6379
+    database: 1
+    password: 123123
   # session 失效时间
   session:
     timeout: 86400
 server:
-  address: 0.0.0.0
+  port: 8080
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        domain: 192.168.59.129
+        same-site: lax
+        secure: false
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 

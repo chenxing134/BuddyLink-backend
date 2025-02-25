@@ -74,7 +74,7 @@ public class InsertUsersTest {
             List<User> userList = new ArrayList<>();
             while (true) {
                 j++;
-                User user = createUser("假鱼皮", "fakeyupi");
+                User user = createUser("假辰星", "fakechenxing");
                 userList.add(user);
 
                 if (j % batchSize == 0) {

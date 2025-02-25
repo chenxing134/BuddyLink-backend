@@ -23,22 +23,22 @@ public class RedisTest {
     void test() {
         ValueOperations valueOperations = redisTemplate.opsForValue();
         // 增
-        valueOperations.set("yupiString", "dog");
-        valueOperations.set("yupiInt", 1);
-        valueOperations.set("yupiDouble", 2.0);
+        valueOperations.set("chenxingString", "dog");
+        valueOperations.set("chenxingInt", 1);
+        valueOperations.set("chenxingDouble", 2.0);
         User user = new User();
         user.setId(1L);
-        user.setUsername("yupi");
-        valueOperations.set("yupiUser", user);
+        user.setUsername("chenxing");
+        valueOperations.set("chenxingUser", user);
         // 查
-        Object yupi = valueOperations.get("yupiString");
-        Assertions.assertTrue("dog".equals((String) yupi));
-        yupi = valueOperations.get("yupiInt");
-        Assertions.assertTrue(1 == (Integer) yupi);
-        yupi = valueOperations.get("yupiDouble");
-        Assertions.assertTrue(2.0 == (Double) yupi);
-        System.out.println(valueOperations.get("yupiUser"));
-        valueOperations.set("yupiString", "dog");
-        redisTemplate.delete("yupiString");
+        Object chenxing = valueOperations.get("chenxingString");
+        Assertions.assertTrue("dog".equals((String) chenxing));
+        chenxing = valueOperations.get("chenxingInt");
+        Assertions.assertTrue(1 == (Integer) chenxing);
+        chenxing = valueOperations.get("chenxingDouble");
+        Assertions.assertTrue(2.0 == (Double) chenxing);
+        System.out.println(valueOperations.get("chenxingUser"));
+        valueOperations.set("chenxingString", "dog");
+        redisTemplate.delete("chenxingString");
     }
 }
