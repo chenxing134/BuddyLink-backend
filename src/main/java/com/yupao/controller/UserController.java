@@ -34,8 +34,8 @@ import static com.yupao.contant.UserConstant.USER_LOGIN_STATE;
  *
  */
 @RestController
-@RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:5173", originPatterns = "http://localhost:8080",allowCredentials = "true")
+@RequestMapping("/user")//(origins = "http://localhost:5173", originPatterns = "http://localhost:8080",allowCredentials = "true")
+@CrossOrigin(origins = "http://121.37.250.205:80", originPatterns = "http://121.37.250.205:8080",allowCredentials = "true")
 @Slf4j
 public class UserController {
 
@@ -130,11 +130,15 @@ public class UserController {
     }
 
     @GetMapping("/search/tags")
-    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList) {
+    public BaseResponse<List<UserVO>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList,
+                                                        HttpServletRequest request) {
+        if (userService.getLoginUser(request) == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN);
+        }
         if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        List<User> userList = userService.searchUserByTags(tagNameList);
+        List<UserVO> userList = userService.searchUsersByTags(tagNameList, request);
         return ResultUtils.success(userList);
     }
 

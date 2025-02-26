@@ -11,11 +11,11 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.59.129:3306/yupao?characterEncoding=UTF-8
+    url: jdbc:mysql://121.37.250.205:3306/buddylink?characterEncoding=UTF-8
     username: chenxing
-    password: PYfStbYGNSWCaaft
+    password: 7Wp7GpZmHB2BxWhH
   redis:
-    host: 127.0.0.2
+    host: 0.0.0.0
     port: 6379
     database: 1
     password: 123123
@@ -28,7 +28,7 @@ server:
     context-path: /api
     session:
       cookie:
-        domain: 192.168.59.129
+        domain: 121.37.250.205
         same-site: lax
         secure: false
 mybatis-plus:

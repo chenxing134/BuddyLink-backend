@@ -50,11 +50,11 @@ public interface UserService extends IService<User> {
 
     /**
      * 根据标签搜索用户
-     *
      * @param tagNameList
+     * @param request
      * @return
      */
-    List<User> searchUserByTags(List<String> tagNameList);
+    List<UserVO> searchUsersByTags(List<String> tagNameList, HttpServletRequest request);
 
     List<User> searchUserByTagsBySQL(List<String> tagNameList);
 
