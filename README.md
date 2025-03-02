@@ -10,8 +10,8 @@
 - **余弦相似度算法（带权重计算）**：如果需要带权重计算，比如学什么方向最重要，性别相对次要，可使用余弦相似度算法。相关信息可参考[相似度算法——余弦相似度（附带 Java 现实）_余弦相似度 java - CSDN 博客](https://blog.csdn.net/qq_36488175/article/details/109787805)。
 
 
-- ### 2. Redis 相关
-#### 2.1 Redis 数据结构
+### 2. Redis 相关
+### 2.1 Redis 数据结构
 Redis 在本项目中作为重要的缓存工具，其支持多种数据结构：
 - **String 字符串类型**：例如 `name:"lihiu"`。
 - **List 列表**：如 `names:["lihui","lihuihui","lihui"]`。
