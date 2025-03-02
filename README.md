@@ -53,7 +53,7 @@ Redisson 中提供了续期机制，即看门狗机制：
 - 原理：
     - 监听当前线程，默认过期时间是 30 秒，每 10 秒续期一次（补到 30 秒）。
     - 如果线程挂掉（注意 debug 模式也会被它当成服务器宕机），则不会续期。
-#### 4.宝塔面板部署
+### 4.宝塔面板部署
 (https://blog.csdn.net/obstacle19/article/details/140164374?ops_request_misc=&request_id=&biz_id=102&utm_term=%E5%AE%9D%E5%A1%94linux%E9%9D%A2%E6%9D%BF%E6%90%AD%E5%BB%BA%E7%BD%91%E7%AB%99&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-2-140164374.nonecase&spm=1018.2226.3001.4187)
 
 ## 项目使用
