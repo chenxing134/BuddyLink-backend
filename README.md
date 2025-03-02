@@ -11,7 +11,7 @@
 
 
 ### 2. Redis 相关
-### 2.1 Redis 数据结构
+#### 2.1 Redis 数据结构
 Redis 在本项目中作为重要的缓存工具，其支持多种数据结构：
 - **String 字符串类型**：例如 `name:"lihiu"`。
 - **List 列表**：如 `names:["lihui","lihuihui","lihui"]`。
