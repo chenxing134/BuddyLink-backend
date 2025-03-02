@@ -14,7 +14,7 @@
 #### 2.1 Redis 数据结构
 Redis 在本项目中作为重要的缓存工具，其支持多种数据结构：
 - **String 字符串类型**：例如 `name:"chenxing"`。
-- **List 列表**：如 `names:["lihui","lihuihui","lihui"]`。
+- **List 列表**：如 `names:["chenxing","chenxingxing","chenxing"]`。
 - **Set 集合**：`names:["chenxing","chenxingxing"]` （值不能重复）。
 - **Hash 哈希**：`nameAge:{ "chenxing":1,"chenxingxing":2 }` （键不能重复）。
 - **Zset 集合**：`names:{chenxing - 9,chenxingxing - 2}` （加入一个分数，从小到大排序，适合排行榜）。
