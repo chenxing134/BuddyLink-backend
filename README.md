@@ -13,11 +13,11 @@
 ### 2. Redis 相关
 #### 2.1 Redis 数据结构
 Redis 在本项目中作为重要的缓存工具，其支持多种数据结构：
-- **String 字符串类型**：例如 `name:"lihiu"`。
+- **String 字符串类型**：例如 `name:"chenxing"`。
 - **List 列表**：如 `names:["lihui","lihuihui","lihui"]`。
-- **Set 集合**：`names:["lihui","lihuihui"]` （值不能重复）。
-- **Hash 哈希**：`nameAge:{ "lihui":1,"lihuihui":2 }` （键不能重复）。
-- **Zset 集合**：`names:{lihui - 9,lihuihui - 2}` （加入一个分数，从小到大排序，适合排行榜）。
+- **Set 集合**：`names:["chenxing","chenxingxing"]` （值不能重复）。
+- **Hash 哈希**：`nameAge:{ "chenxing":1,"chenxingxing":2 }` （键不能重复）。
+- **Zset 集合**：`names:{chenxing - 9,chenxingxing - 2}` （加入一个分数，从小到大排序，适合排行榜）。
 
 此外，还有一些特殊的数据结构，如：
 - **bloomfilter（布隆过滤器）**：主要从大量的数据中快速过滤值，比如邮件黑名单拦截。
